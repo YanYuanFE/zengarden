@@ -16,13 +16,13 @@ export async function generateToken(userId: string, address: string): Promise<st
     address,
     exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60, // 7 天过期
   };
-  return await sign(payload, JWT_SECRET);
+  return await sign(payload as unknown as Record<string, unknown>, JWT_SECRET);
 }
 
 // 验证 JWT token
 export async function verifyToken(token: string): Promise<JWTPayload | null> {
   try {
-    const payload = await verify(token, JWT_SECRET, 'HS256') as JWTPayload;
+    const payload = await verify(token, JWT_SECRET, 'HS256') as unknown as JWTPayload;
     return payload;
   } catch (error) {
     console.error('Token verification failed:', error);

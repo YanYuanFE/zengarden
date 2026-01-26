@@ -10,7 +10,13 @@ import { community } from './routes/community.js';
 import { logger } from 'hono/logger';
 import { startWorker } from './services/flower-worker.js';
 
-const app = new Hono();
+import type { JWTPayload } from './lib/jwt.js';
+
+type Variables = {
+  user: JWTPayload;
+};
+
+const app = new Hono<{ Variables: Variables }>();
 
 app.use('*', logger());
 

@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { prisma } from '../lib/prisma.js';
 import { jwtMiddleware, type JWTPayload } from '../lib/jwt.js';
 
-const community = new Hono();
+const community = new Hono<{ Variables: { user: JWTPayload } }>();
 
 // GET /api/community/feed - 获取社区动态流
 community.get('/feed', async (c) => {

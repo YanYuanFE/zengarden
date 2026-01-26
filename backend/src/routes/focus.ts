@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { prisma } from '../lib/prisma.js';
 import { jwtMiddleware, type JWTPayload } from '../lib/jwt.js';
 
-const focus = new Hono();
+const focus = new Hono<{ Variables: { user: JWTPayload } }>();
 
 // 所有 focus 路由都需要 JWT 认证
 focus.use('*', jwtMiddleware);

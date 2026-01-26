@@ -3,7 +3,7 @@ import { prisma } from '../lib/prisma.js';
 import { verifyMessage } from 'viem';
 import { generateToken, jwtMiddleware, type JWTPayload } from '../lib/jwt.js';
 
-const auth = new Hono();
+const auth = new Hono<{ Variables: { user: JWTPayload } }>();
 
 // 存储 nonce（生产环境应使用 Redis）
 const nonceStore = new Map<string, { nonce: string; expiresAt: number }>();

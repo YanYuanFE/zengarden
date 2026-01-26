@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { prisma } from '../lib/prisma.js';
 import { jwtMiddleware, type JWTPayload } from '../lib/jwt.js';
 
-const stats = new Hono();
+const stats = new Hono<{ Variables: { user: JWTPayload } }>();
 
 // 所有 stats 路由都需要 JWT 认证
 stats.use('*', jwtMiddleware);

@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { prisma } from '../lib/prisma.js';
 import { jwtMiddleware, type JWTPayload } from '../lib/jwt.js';
 
-const flowers = new Hono();
+const flowers = new Hono<{ Variables: { user: JWTPayload } }>();
 
 flowers.use('*', jwtMiddleware);
 
