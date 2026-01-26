@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { flowersApi, type Flower } from '@/services/api';
+import { flowersApi } from '@/services/api';
 
 export const flowerKeys = {
   all: ['flowers'] as const,
