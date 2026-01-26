@@ -1,31 +1,47 @@
 version: '3.8'
 
 services:
+  # Backend API
   backend:
     build:
       context: ./backend
-    restart: always
-    ports:
-      - "3000:3000"
+      dockerfile: Dockerfile
+    container_name: zengarden-backend
+    restart: unless-stopped
     environment:
-      - DB_URL=${DB_URL}
-      - PORT=3000
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - GEMINI_RELAY_URL=${GEMINI_RELAY_URL}
-      - R2_ACCOUNT_ID=${R2_ACCOUNT_ID}
-      - R2_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID}
-      - R2_SECRET_ACCESS_KEY=${R2_SECRET_ACCESS_KEY}
-      - R2_PUBLIC_URL=${R2_PUBLIC_URL}
-      - R2_BUCKET_NAME=${R2_BUCKET_NAME}
-      - JWT_SECRET=${JWT_SECRET}
-      - MINTER_PRIVATE_KEY=${MINTER_PRIVATE_KEY}
-      - NFT_CONTRACT_ADDRESS=${NFT_CONTRACT_ADDRESS}
+      NODE_ENV: production
+      PORT: 3000
+      DB_URL: ${DB_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GEMINI_RELAY_URL: ${GEMINI_RELAY_URL:-}
+      R2_ACCOUNT_ID: ${R2_ACCOUNT_ID}
+      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID}
+      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY}
+      R2_BUCKET_NAME: ${R2_BUCKET_NAME}
+      R2_PUBLIC_URL: ${R2_PUBLIC_URL}
+      MINTER_PRIVATE_KEY: ${MINTER_PRIVATE_KEY}
+      NFT_CONTRACT_ADDRESS: ${NFT_CONTRACT_ADDRESS}
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - dokploy-network
 
+  # Frontend (Nginx + Static)
   web:
     build:
       context: ./web
-    restart: always
-    ports:
-      - "8080:80"
+      dockerfile: Dockerfile
+    container_name: zengarden-web
+    restart: unless-stopped
     depends_on:
       - backend
+    networks:
+      - dokploy-network
+
+networks:
+  dokploy-network:
+    external: true
