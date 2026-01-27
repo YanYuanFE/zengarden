@@ -28,6 +28,10 @@ app.get('/health', (c) => {
   return c.json({ status: 'ok', service: 'zengarden-api' });
 });
 
+app.get('/api/health', (c) => {
+  return c.json({ status: 'ok', service: 'zengarden-api' });
+});
+
 // 挂载路由
 app.route('/api/auth', auth);
 app.route('/api/focus', focus);
