@@ -35,4 +35,5 @@ ENV PORT=3000
 EXPOSE 3000
 
 # Run database migrations and start server
-CMD ["sh", "-c", "npx prisma migrate deploy && pnpm start"]
+# First resolve the initial migration if needed (for existing databases), then deploy
+CMD ["sh", "-c", "npx prisma migrate resolve --applied 0_init 2>/dev/null || true && npx prisma migrate deploy && pnpm start"]

@@ -148,7 +148,7 @@ export function GardenPage() {
   }
 
   return (
-    <div className="pt-24 pb-24 px-6 max-w-4xl mx-auto">
+    <div className="py-6 px-6 max-w-4xl mx-auto">
       <h1 className="font-display text-2xl font-bold text-charcoal mb-6">
         My Garden
       </h1>

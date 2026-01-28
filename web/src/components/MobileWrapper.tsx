@@ -24,7 +24,7 @@ export const MobileWrapper = ({ children }: { children: React.ReactNode }) => {
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100 py-10">
             <DeviceFrameset device="iPhone X" color="black">
-                <div className="w-full h-full bg-cream overflow-y-auto scrollbar-hide">
+                <div className="w-full h-full bg-cream overflow-y-auto scrollbar-hide pt-12">
                     {children}
                 </div>
             </DeviceFrameset>
