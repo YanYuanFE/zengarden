@@ -21,12 +21,12 @@ export function MainLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-cream">
-      <Header />
-      <main>
+    <div className="relative h-full w-full bg-cream overflow-hidden">
+      <Header className="absolute" />
+      <main className="h-full w-full overflow-y-auto pt-16 pb-16">
         <Outlet />
       </main>
-      <BottomNav />
+      <BottomNav className="absolute" />
     </div>
   );
 }

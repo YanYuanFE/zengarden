@@ -1,6 +1,5 @@
-import { useState } from 'react';
-import { type Flower, flowersApi } from '@/services/api';
-import { useFlowers } from '@/hooks/useFlowers';
+import { type Flower } from '@/services/api';
+import { useFlowers, useRetryTask } from '@/hooks/useFlowers';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, AlertCircle, Loader2 } from 'lucide-react';
@@ -15,11 +14,17 @@ function EmptyState() {
   );
 }
 
-function FlowerGrid({ flowers, onRetry }: { flowers: Flower[]; onRetry: (taskId: string) => Promise<void> }) {
+function FlowerGrid({ flowers, onRetry, retryingTaskId }: { flowers: Flower[]; onRetry: (taskId: string) => void; retryingTaskId: string | null }) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
       {flowers.map((flower, i) => (
-        <FlowerCard key={flower.id} flower={flower} index={i} onRetry={onRetry} />
+        <FlowerCard
+          key={flower.id}
+          flower={flower}
+          index={i}
+          onRetry={onRetry}
+          isRetrying={retryingTaskId === flower.task?.id}
+        />
       ))}
     </div>
   );
@@ -58,19 +63,13 @@ function getTaskStatusDisplay(task?: Flower['task']) {
   }
 }
 
-function FlowerCard({ flower, index, onRetry }: { flower: Flower; index: number; onRetry: (taskId: string) => Promise<void> }) {
-  const [isRetrying, setIsRetrying] = useState(false);
+function FlowerCard({ flower, index, onRetry, isRetrying }: { flower: Flower; index: number; onRetry: (taskId: string) => void; isRetrying: boolean }) {
   const statusDisplay = getTaskStatusDisplay(flower.task);
   const hasImage = !!flower.imageUrl;
 
-  const handleRetry = async () => {
+  const handleRetry = () => {
     if (!flower.task?.id || isRetrying) return;
-    setIsRetrying(true);
-    try {
-      await onRetry(flower.task.id);
-    } finally {
-      setIsRetrying(false);
-    }
+    onRetry(flower.task.id);
   };
 
   return (
@@ -132,16 +131,11 @@ function FlowerCard({ flower, index, onRetry }: { flower: Flower; index: number;
 }
 
 export function GardenPage() {
-  const { data: flowers = [], isLoading, refetch } = useFlowers();
+  const { data: flowers = [], isLoading } = useFlowers();
+  const retryMutation = useRetryTask();
 
-  const handleRetry = async (taskId: string) => {
-    try {
-      await flowersApi.retryTask(taskId);
-      // Refetch to update UI
-      await refetch();
-    } catch (error) {
-      console.error('Retry failed:', error);
-    }
+  const handleRetry = (taskId: string) => {
+    retryMutation.mutate(taskId);
   };
 
   if (isLoading) {
@@ -162,7 +156,11 @@ export function GardenPage() {
       {flowers.length === 0 ? (
         <EmptyState />
       ) : (
-        <FlowerGrid flowers={flowers} onRetry={handleRetry} />
+        <FlowerGrid
+          flowers={flowers}
+          onRetry={handleRetry}
+          retryingTaskId={retryMutation.isPending ? retryMutation.variables ?? null : null}
+        />
       )}
     </div>
   );

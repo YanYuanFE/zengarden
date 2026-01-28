@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { DeviceFrameset } from 'react-device-frameset';
+import 'react-device-frameset/styles/marvel-devices.min.css'
+
 
 export const MobileWrapper = ({ children }: { children: React.ReactNode }) => {
     const [isDesktop, setIsDesktop] = useState(false);
@@ -14,6 +16,7 @@ export const MobileWrapper = ({ children }: { children: React.ReactNode }) => {
         return () => window.removeEventListener('resize', checkScreen);
     }, []);
 
+    console.log(isDesktop);
     if (!isDesktop) {
         return <>{children}</>;
     }

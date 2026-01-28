@@ -2,9 +2,9 @@ import { NavLink } from 'react-router-dom';
 import { Home, Flower2, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export function BottomNav() {
+export function BottomNav({ className }: { className?: string }) {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t">
+    <nav className={cn("fixed bottom-0 left-0 right-0 bg-white border-t", className)}>
       <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-around">
         <NavLink
           to="/"
