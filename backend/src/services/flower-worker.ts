@@ -1,7 +1,7 @@
 import { prisma } from '../lib/prisma.js';
 import { generateFlower } from '../services/flower-generator.js';
 import { uploadImage, uploadJson } from '../lib/r2.js';
-import { mintNFT } from '../lib/nft.js';
+import { mintNFT } from '../lib/solana.js';
 
 const POLL_INTERVAL = 5000; // 5秒轮询一次
 let isRunning = false;
@@ -73,32 +73,51 @@ async function processTask(task: any) {
   await updateTaskStatus(task.id, 'minting');
 
   const metadata = {
-    name: `Zen Flower #${Date.now()}`,
-    description: `专注于「${flower.session.reason}」${Math.floor(flower.session.durationSeconds / 60)}分钟后收获的花朵`,
+    name: `ZenGarden Flower #${Date.now()}`,
+    symbol: 'ZENF',
+    description: `A flower grown through ${Math.floor(flower.session.durationSeconds / 60)} minutes of focused "${flower.session.reason}"`,
     image: imageUrl,
+    external_url: 'https://zengarden.pixstudio.art',
     attributes: [
       { trait_type: 'Focus Reason', value: flower.session.reason },
-      { trait_type: 'Duration', value: `${flower.session.durationSeconds} seconds` },
+      { trait_type: 'Duration', value: `${Math.floor(flower.session.durationSeconds / 60)} minutes` },
       { trait_type: 'Date', value: new Date().toISOString().split('T')[0] },
     ],
+    properties: {
+      category: 'image',
+      files: [{ uri: imageUrl, type: 'image/png' }],
+    },
   };
 
   const metadataFileName = `metadata/${flower.userId}/${Date.now()}.json`;
   const metadataUrl = await uploadJson(metadata, metadataFileName);
 
-  // 步骤4: Mint NFT
+  // 步骤4: Mint NFT (Solana)
   let txHash: string | null = null;
-  let tokenId: number | null = null;
+  let tokenId: string | null = null;
 
   if (flower.user?.address) {
-    const mintResult = await mintNFT(flower.user.address as `0x${string}`, metadataUrl);
-    txHash = mintResult.txHash;
-    tokenId = mintResult.tokenId;
+    try {
+      const mintResult = await mintNFT(
+        flower.user.address,
+        metadataUrl,
+        metadata.name
+      );
+      txHash = mintResult.signature;
+      tokenId = mintResult.mint; // Solana 使用 mint address 作为 tokenId
 
-    await prisma.flower.update({
-      where: { id: flower.id },
-      data: { txHash, tokenId, metadataUrl, minted: true },
-    });
+      await prisma.flower.update({
+        where: { id: flower.id },
+        data: { txHash, tokenId, metadataUrl, minted: true },
+      });
+    } catch (error: any) {
+      console.error(`NFT mint failed for flower ${flower.id}:`, error.message);
+      // 继续执行，图片已生成，只是 NFT 未 mint
+      await prisma.flower.update({
+        where: { id: flower.id },
+        data: { metadataUrl, minted: false },
+      });
+    }
   }
 
   // 更新用户花朵数量

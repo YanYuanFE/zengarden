@@ -1,40 +1,35 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAppKit } from '@reown/appkit/react';
-import { useAccount, useSignMessage, useDisconnect } from 'wagmi';
+import { useAppKit, useAppKitAccount, useAppKitProvider, useDisconnect } from '@reown/appkit/react';
 import { useUser } from '@/contexts/UserContext';
 import { authApi } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { formatAddress } from '@/lib/utils';
+import type { Provider } from '@reown/appkit-adapter-solana';
+import bs58 from 'bs58';
 
-function createSiweMessage(address: string, chainId: number, nonce: string): string {
+function createSignMessage(address: string, nonce: string): string {
   const domain = 'zengarden.xyz';
-  const uri = 'https://zengarden.xyz';
   const now = new Date();
-  const expirationTime = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
   return [
-    `${domain} wants you to sign in with your Ethereum account:`,
+    `${domain} wants you to sign in with your Solana account:`,
     address,
     '',
     'Welcome to ZenGarden! Please sign to verify your wallet ownership.',
     '',
-    `URI: ${uri}`,
-    `Version: 1`,
-    `Chain ID: ${chainId}`,
     `Nonce: ${nonce}`,
     `Issued At: ${now.toISOString()}`,
-    `Expiration Time: ${expirationTime.toISOString()}`,
   ].join('\n');
 }
 
 export function LoginPage() {
   const navigate = useNavigate();
   const { open } = useAppKit();
-  const { address, isConnected, chainId } = useAccount();
+  const { address, isConnected } = useAppKitAccount();
   const { disconnect } = useDisconnect();
-  const { signMessageAsync } = useSignMessage();
+  const { walletProvider } = useAppKitProvider<Provider>('solana');
   const { user, login, isLoading, isInitialized } = useUser();
   const [isSigning, setIsSigning] = useState(false);
 
@@ -45,14 +40,19 @@ export function LoginPage() {
   }
 
   const handleSign = async () => {
-    if (!address || !chainId || isSigning) return;
+    if (!address || !walletProvider || isSigning) return;
 
     setIsSigning(true);
     try {
       const { nonce } = await authApi.getNonce(address);
-      const message = createSiweMessage(address, chainId, nonce);
-      const signature = await signMessageAsync({ message });
-      const result = await authApi.verify({ address, chainId, message, signature });
+      const message = createSignMessage(address, nonce);
+
+      // Solana 签名
+      const encodedMessage = new TextEncoder().encode(message);
+      const signatureBytes = await walletProvider.signMessage(encodedMessage);
+      const signature = bs58.encode(signatureBytes);
+
+      const result = await authApi.verify({ address, message, signature });
       await login(result.token);
     } catch (error) {
       console.error('Sign error:', error);
@@ -96,7 +96,7 @@ export function LoginPage() {
               Connect Wallet
             </Button>
             <p className="text-center text-sm text-stone">
-              Step 1: Connect your wallet
+              Step 1: Connect your Solana wallet
             </p>
           </div>
         ) : (

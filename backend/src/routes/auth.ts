@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { prisma } from '../lib/prisma.js';
-import { verifyMessage } from 'viem';
+import { verifySignature } from '../lib/solana.js';
 import { generateToken, jwtMiddleware, type JWTPayload } from '../lib/jwt.js';
 
 const auth = new Hono<{ Variables: { user: JWTPayload } }>();
@@ -19,7 +19,8 @@ auth.get('/nonce', (c) => {
   const address = c.req.query('address');
 
   if (address) {
-    nonceStore.set(address.toLowerCase(), {
+    // Solana 地址区分大小写，不进行 toLowerCase
+    nonceStore.set(address, {
       nonce,
       expiresAt: Date.now() + 5 * 60 * 1000, // 5 分钟过期
     });
@@ -31,37 +32,32 @@ auth.get('/nonce', (c) => {
 // POST /api/auth/verify - 验证签名登录
 auth.post('/verify', async (c) => {
   try {
-    const { message, signature, address, chainId } = await c.req.json();
+    const { message, signature, address } = await c.req.json();
 
     if (!address) {
       return c.json({ error: 'Address is required' }, 400);
     }
-
-    const normalizedAddress = address.toLowerCase();
 
     // 必须提供 message 和 signature
     if (!message || !signature) {
       return c.json({ error: 'Message and signature are required' }, 400);
     }
 
-    // 验证签名
-    const isValid = await verifyMessage({
-      address: address as `0x${string}`,
-      message,
-      signature,
-    });
+    // 验证 Solana 签名 (Ed25519)
+    const isValid = verifySignature(message, signature, address);
 
     if (!isValid) {
       return c.json({ error: 'Invalid signature' }, 401);
     }
 
+    // Solana 地址区分大小写，不进行 toLowerCase
     // 使用 upsert 避免并发问题
     const user = await prisma.user.upsert({
-      where: { address: normalizedAddress },
+      where: { address },
       update: {},
       create: {
-        address: normalizedAddress,
-        chainId: chainId || 56,
+        address,
+        chainId: 0, // Solana 不使用 EVM chainId
       },
     });
 
@@ -119,7 +115,7 @@ auth.post('/logout', jwtMiddleware, async (c) => {
     const payload = c.get('user') as JWTPayload;
 
     // 清理该用户的 nonce
-    nonceStore.delete(payload.address.toLowerCase());
+    nonceStore.delete(payload.address);
 
     return c.json({ success: true });
   } catch (error: any) {

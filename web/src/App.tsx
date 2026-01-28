@@ -10,6 +10,7 @@ import { GardenPage } from '@/pages/GardenPage';
 import { CommunityPage } from '@/pages/CommunityPage';
 import { UserPage } from '@/pages/UserPage';
 import { LeaderboardPage } from '@/pages/LeaderboardPage';
+import { MobileWrapper } from '@/components/MobileWrapper';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,21 +26,23 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <Web3Provider>
         <UserProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/focus" element={<FocusPage />} />
-            <Route element={<MainLayout />}>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/garden" element={<GardenPage />} />
-              <Route path="/community" element={<CommunityPage />} />
-              <Route path="/leaderboard" element={<LeaderboardPage />} />
-              <Route path="/user/:address" element={<UserPage />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
-      </UserProvider>
-    </Web3Provider>
+          <MobileWrapper>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/focus" element={<FocusPage />} />
+                <Route element={<MainLayout />}>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/garden" element={<GardenPage />} />
+                  <Route path="/community" element={<CommunityPage />} />
+                  <Route path="/leaderboard" element={<LeaderboardPage />} />
+                  <Route path="/user/:address" element={<UserPage />} />
+                </Route>
+              </Routes>
+            </BrowserRouter>
+          </MobileWrapper>
+        </UserProvider>
+      </Web3Provider>
     </QueryClientProvider>
   );
 }

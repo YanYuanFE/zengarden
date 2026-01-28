@@ -20,18 +20,8 @@ export type FlowerModel = runtime.Types.Result.DefaultSelection<Prisma.$FlowerPa
 
 export type AggregateFlower = {
   _count: FlowerCountAggregateOutputType | null
-  _avg: FlowerAvgAggregateOutputType | null
-  _sum: FlowerSumAggregateOutputType | null
   _min: FlowerMinAggregateOutputType | null
   _max: FlowerMaxAggregateOutputType | null
-}
-
-export type FlowerAvgAggregateOutputType = {
-  tokenId: number | null
-}
-
-export type FlowerSumAggregateOutputType = {
-  tokenId: number | null
 }
 
 export type FlowerMinAggregateOutputType = {
@@ -41,7 +31,7 @@ export type FlowerMinAggregateOutputType = {
   prompt: string | null
   imageUrl: string | null
   metadataUrl: string | null
-  tokenId: number | null
+  tokenId: string | null
   txHash: string | null
   minted: boolean | null
   createdAt: Date | null
@@ -54,7 +44,7 @@ export type FlowerMaxAggregateOutputType = {
   prompt: string | null
   imageUrl: string | null
   metadataUrl: string | null
-  tokenId: number | null
+  tokenId: string | null
   txHash: string | null
   minted: boolean | null
   createdAt: Date | null
@@ -74,14 +64,6 @@ export type FlowerCountAggregateOutputType = {
   _all: number
 }
 
-
-export type FlowerAvgAggregateInputType = {
-  tokenId?: true
-}
-
-export type FlowerSumAggregateInputType = {
-  tokenId?: true
-}
 
 export type FlowerMinAggregateInputType = {
   id?: true
@@ -161,18 +143,6 @@ export type FlowerAggregateArgs<ExtArgs extends runtime.Types.Extensions.Interna
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Select which fields to average
-  **/
-  _avg?: FlowerAvgAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
-   * Select which fields to sum
-  **/
-  _sum?: FlowerSumAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
    * Select which fields to find the minimum value
   **/
   _min?: FlowerMinAggregateInputType
@@ -203,8 +173,6 @@ export type FlowerGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   _count?: FlowerCountAggregateInputType | true
-  _avg?: FlowerAvgAggregateInputType
-  _sum?: FlowerSumAggregateInputType
   _min?: FlowerMinAggregateInputType
   _max?: FlowerMaxAggregateInputType
 }
@@ -216,13 +184,11 @@ export type FlowerGroupByOutputType = {
   prompt: string | null
   imageUrl: string | null
   metadataUrl: string | null
-  tokenId: number | null
+  tokenId: string | null
   txHash: string | null
   minted: boolean
   createdAt: Date
   _count: FlowerCountAggregateOutputType | null
-  _avg: FlowerAvgAggregateOutputType | null
-  _sum: FlowerSumAggregateOutputType | null
   _min: FlowerMinAggregateOutputType | null
   _max: FlowerMaxAggregateOutputType | null
 }
@@ -252,7 +218,7 @@ export type FlowerWhereInput = {
   prompt?: Prisma.StringNullableFilter<"Flower"> | string | null
   imageUrl?: Prisma.StringNullableFilter<"Flower"> | string | null
   metadataUrl?: Prisma.StringNullableFilter<"Flower"> | string | null
-  tokenId?: Prisma.IntNullableFilter<"Flower"> | number | null
+  tokenId?: Prisma.StringNullableFilter<"Flower"> | string | null
   txHash?: Prisma.StringNullableFilter<"Flower"> | string | null
   minted?: Prisma.BoolFilter<"Flower"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Flower"> | Date | string
@@ -289,7 +255,7 @@ export type FlowerWhereUniqueInput = Prisma.AtLeast<{
   prompt?: Prisma.StringNullableFilter<"Flower"> | string | null
   imageUrl?: Prisma.StringNullableFilter<"Flower"> | string | null
   metadataUrl?: Prisma.StringNullableFilter<"Flower"> | string | null
-  tokenId?: Prisma.IntNullableFilter<"Flower"> | number | null
+  tokenId?: Prisma.StringNullableFilter<"Flower"> | string | null
   txHash?: Prisma.StringNullableFilter<"Flower"> | string | null
   minted?: Prisma.BoolFilter<"Flower"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Flower"> | Date | string
@@ -311,10 +277,8 @@ export type FlowerOrderByWithAggregationInput = {
   minted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.FlowerCountOrderByAggregateInput
-  _avg?: Prisma.FlowerAvgOrderByAggregateInput
   _max?: Prisma.FlowerMaxOrderByAggregateInput
   _min?: Prisma.FlowerMinOrderByAggregateInput
-  _sum?: Prisma.FlowerSumOrderByAggregateInput
 }
 
 export type FlowerScalarWhereWithAggregatesInput = {
@@ -327,7 +291,7 @@ export type FlowerScalarWhereWithAggregatesInput = {
   prompt?: Prisma.StringNullableWithAggregatesFilter<"Flower"> | string | null
   imageUrl?: Prisma.StringNullableWithAggregatesFilter<"Flower"> | string | null
   metadataUrl?: Prisma.StringNullableWithAggregatesFilter<"Flower"> | string | null
-  tokenId?: Prisma.IntNullableWithAggregatesFilter<"Flower"> | number | null
+  tokenId?: Prisma.StringNullableWithAggregatesFilter<"Flower"> | string | null
   txHash?: Prisma.StringNullableWithAggregatesFilter<"Flower"> | string | null
   minted?: Prisma.BoolWithAggregatesFilter<"Flower"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Flower"> | Date | string
@@ -338,7 +302,7 @@ export type FlowerCreateInput = {
   prompt?: string | null
   imageUrl?: string | null
   metadataUrl?: string | null
-  tokenId?: number | null
+  tokenId?: string | null
   txHash?: string | null
   minted?: boolean
   createdAt?: Date | string
@@ -355,7 +319,7 @@ export type FlowerUncheckedCreateInput = {
   prompt?: string | null
   imageUrl?: string | null
   metadataUrl?: string | null
-  tokenId?: number | null
+  tokenId?: string | null
   txHash?: string | null
   minted?: boolean
   createdAt?: Date | string
@@ -368,7 +332,7 @@ export type FlowerUpdateInput = {
   prompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tokenId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tokenId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   txHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   minted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -385,7 +349,7 @@ export type FlowerUncheckedUpdateInput = {
   prompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tokenId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tokenId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   txHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   minted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -400,7 +364,7 @@ export type FlowerCreateManyInput = {
   prompt?: string | null
   imageUrl?: string | null
   metadataUrl?: string | null
-  tokenId?: number | null
+  tokenId?: string | null
   txHash?: string | null
   minted?: boolean
   createdAt?: Date | string
@@ -411,7 +375,7 @@ export type FlowerUpdateManyMutationInput = {
   prompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tokenId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tokenId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   txHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   minted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -424,7 +388,7 @@ export type FlowerUncheckedUpdateManyInput = {
   prompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tokenId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tokenId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   txHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   minted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -458,10 +422,6 @@ export type FlowerCountOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
 }
 
-export type FlowerAvgOrderByAggregateInput = {
-  tokenId?: Prisma.SortOrder
-}
-
 export type FlowerMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -486,10 +446,6 @@ export type FlowerMinOrderByAggregateInput = {
   txHash?: Prisma.SortOrder
   minted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-}
-
-export type FlowerSumOrderByAggregateInput = {
-  tokenId?: Prisma.SortOrder
 }
 
 export type FlowerScalarRelationFilter = {
@@ -571,14 +527,6 @@ export type FlowerUncheckedUpdateOneWithoutSessionNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.FlowerUpdateToOneWithWhereWithoutSessionInput, Prisma.FlowerUpdateWithoutSessionInput>, Prisma.FlowerUncheckedUpdateWithoutSessionInput>
 }
 
-export type NullableIntFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type FlowerCreateNestedOneWithoutTaskInput = {
   create?: Prisma.XOR<Prisma.FlowerCreateWithoutTaskInput, Prisma.FlowerUncheckedCreateWithoutTaskInput>
   connectOrCreate?: Prisma.FlowerCreateOrConnectWithoutTaskInput
@@ -612,7 +560,7 @@ export type FlowerCreateWithoutUserInput = {
   prompt?: string | null
   imageUrl?: string | null
   metadataUrl?: string | null
-  tokenId?: number | null
+  tokenId?: string | null
   txHash?: string | null
   minted?: boolean
   createdAt?: Date | string
@@ -627,7 +575,7 @@ export type FlowerUncheckedCreateWithoutUserInput = {
   prompt?: string | null
   imageUrl?: string | null
   metadataUrl?: string | null
-  tokenId?: number | null
+  tokenId?: string | null
   txHash?: string | null
   minted?: boolean
   createdAt?: Date | string
@@ -671,7 +619,7 @@ export type FlowerScalarWhereInput = {
   prompt?: Prisma.StringNullableFilter<"Flower"> | string | null
   imageUrl?: Prisma.StringNullableFilter<"Flower"> | string | null
   metadataUrl?: Prisma.StringNullableFilter<"Flower"> | string | null
-  tokenId?: Prisma.IntNullableFilter<"Flower"> | number | null
+  tokenId?: Prisma.StringNullableFilter<"Flower"> | string | null
   txHash?: Prisma.StringNullableFilter<"Flower"> | string | null
   minted?: Prisma.BoolFilter<"Flower"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Flower"> | Date | string
@@ -682,7 +630,7 @@ export type FlowerCreateWithoutSessionInput = {
   prompt?: string | null
   imageUrl?: string | null
   metadataUrl?: string | null
-  tokenId?: number | null
+  tokenId?: string | null
   txHash?: string | null
   minted?: boolean
   createdAt?: Date | string
@@ -697,7 +645,7 @@ export type FlowerUncheckedCreateWithoutSessionInput = {
   prompt?: string | null
   imageUrl?: string | null
   metadataUrl?: string | null
-  tokenId?: number | null
+  tokenId?: string | null
   txHash?: string | null
   minted?: boolean
   createdAt?: Date | string
@@ -726,7 +674,7 @@ export type FlowerUpdateWithoutSessionInput = {
   prompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tokenId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tokenId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   txHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   minted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -741,7 +689,7 @@ export type FlowerUncheckedUpdateWithoutSessionInput = {
   prompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tokenId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tokenId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   txHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   minted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -754,7 +702,7 @@ export type FlowerCreateWithoutTaskInput = {
   prompt?: string | null
   imageUrl?: string | null
   metadataUrl?: string | null
-  tokenId?: number | null
+  tokenId?: string | null
   txHash?: string | null
   minted?: boolean
   createdAt?: Date | string
@@ -770,7 +718,7 @@ export type FlowerUncheckedCreateWithoutTaskInput = {
   prompt?: string | null
   imageUrl?: string | null
   metadataUrl?: string | null
-  tokenId?: number | null
+  tokenId?: string | null
   txHash?: string | null
   minted?: boolean
   createdAt?: Date | string
@@ -798,7 +746,7 @@ export type FlowerUpdateWithoutTaskInput = {
   prompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tokenId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tokenId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   txHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   minted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -814,7 +762,7 @@ export type FlowerUncheckedUpdateWithoutTaskInput = {
   prompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tokenId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tokenId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   txHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   minted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -826,7 +774,7 @@ export type FlowerCreateWithoutLikesInput = {
   prompt?: string | null
   imageUrl?: string | null
   metadataUrl?: string | null
-  tokenId?: number | null
+  tokenId?: string | null
   txHash?: string | null
   minted?: boolean
   createdAt?: Date | string
@@ -842,7 +790,7 @@ export type FlowerUncheckedCreateWithoutLikesInput = {
   prompt?: string | null
   imageUrl?: string | null
   metadataUrl?: string | null
-  tokenId?: number | null
+  tokenId?: string | null
   txHash?: string | null
   minted?: boolean
   createdAt?: Date | string
@@ -870,7 +818,7 @@ export type FlowerUpdateWithoutLikesInput = {
   prompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tokenId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tokenId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   txHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   minted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -886,7 +834,7 @@ export type FlowerUncheckedUpdateWithoutLikesInput = {
   prompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tokenId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tokenId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   txHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   minted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -899,7 +847,7 @@ export type FlowerCreateManyUserInput = {
   prompt?: string | null
   imageUrl?: string | null
   metadataUrl?: string | null
-  tokenId?: number | null
+  tokenId?: string | null
   txHash?: string | null
   minted?: boolean
   createdAt?: Date | string
@@ -910,7 +858,7 @@ export type FlowerUpdateWithoutUserInput = {
   prompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tokenId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tokenId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   txHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   minted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -925,7 +873,7 @@ export type FlowerUncheckedUpdateWithoutUserInput = {
   prompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tokenId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tokenId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   txHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   minted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -939,7 +887,7 @@ export type FlowerUncheckedUpdateManyWithoutUserInput = {
   prompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tokenId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tokenId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   txHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   minted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1069,7 +1017,7 @@ export type $FlowerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     prompt: string | null
     imageUrl: string | null
     metadataUrl: string | null
-    tokenId: number | null
+    tokenId: string | null
     txHash: string | null
     minted: boolean
     createdAt: Date
@@ -1506,7 +1454,7 @@ export interface FlowerFieldRefs {
   readonly prompt: Prisma.FieldRef<"Flower", 'String'>
   readonly imageUrl: Prisma.FieldRef<"Flower", 'String'>
   readonly metadataUrl: Prisma.FieldRef<"Flower", 'String'>
-  readonly tokenId: Prisma.FieldRef<"Flower", 'Int'>
+  readonly tokenId: Prisma.FieldRef<"Flower", 'String'>
   readonly txHash: Prisma.FieldRef<"Flower", 'String'>
   readonly minted: Prisma.FieldRef<"Flower", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Flower", 'DateTime'>

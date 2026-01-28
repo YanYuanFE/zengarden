@@ -1,8 +1,7 @@
 import { createAppKit } from '@reown/appkit/react'
-import { WagmiProvider } from 'wagmi'
-import { bsc } from '@reown/appkit/networks'
+import { SolanaAdapter } from '@reown/appkit-adapter-solana'
+import { solana, solanaDevnet } from '@reown/appkit/networks'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 import type { AppKitNetwork } from '@reown/appkit/networks'
 
 const queryClient = new QueryClient()
@@ -16,19 +15,16 @@ const metadata = {
   icons: ['https://zengarden.xyz/icon.png'],
 }
 
-const networks: [AppKitNetwork, ...AppKitNetwork[]] = [bsc]
+const networks: [AppKitNetwork, ...AppKitNetwork[]] = [solana, solanaDevnet]
 
-const wagmiAdapter = new WagmiAdapter({
-  projectId,
-  networks,
-})
+const solanaAdapter = new SolanaAdapter()
 
 createAppKit({
-  adapters: [wagmiAdapter],
+  adapters: [solanaAdapter],
   networks,
   projectId,
   metadata,
-  defaultNetwork: bsc,
+  defaultNetwork: solana,
   features: {
     analytics: true,
   },
@@ -36,10 +32,8 @@ createAppKit({
 
 export function Web3Provider({ children }: { children: React.ReactNode }) {
   return (
-    <WagmiProvider config={wagmiAdapter.wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        {children}
-      </QueryClientProvider>
-    </WagmiProvider>
+    <QueryClientProvider client={queryClient}>
+      {children}
+    </QueryClientProvider>
   )
 }

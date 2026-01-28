@@ -13,11 +13,16 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.975.0",
     "@hono/node-server": "^1.19.9",
+    "@metaplex-foundation/mpl-token-metadata": "^3.4.0",
+    "@metaplex-foundation/umi": "^1.4.1",
+    "@metaplex-foundation/umi-bundle-defaults": "^1.4.1",
     "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",
+    "bs58": "^6.0.0",
     "dotenv": "^17.2.3",
     "hono": "^4.11.5",
     "prisma": "^7.3.0",
+    "tweetnacl": "^1.0.3",
     "viem": "^2.45.0"
   },
   "devDependencies": {
