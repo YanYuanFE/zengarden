@@ -11,12 +11,12 @@ import {
 import bs58 from 'bs58';
 
 // ============ 配置 ============
-const RPC_URL = 'https://palpable-sleek-cloud.solana-mainnet.quiknode.pro/8addb656f4aa7d9e526d0284275a6fbbbe0faa08/';
+// 使用环境变量或默认 devnet
+const RPC_URL = process.env.SOLANA_RPC_URL || 'https://api.devnet.solana.com';
 const COLLECTION_METADATA_URI = 'https://pub-c194b99328794beabf61c62a51e74fdb.r2.dev/collection.json';
 
-// ⚠️ 填入你的钱包私钥 (Base58 格式)
-// 可以从 Phantom 导出，或使用 solana-keygen 生成
-const WALLET_PRIVATE_KEY = process.env.SOLANA_PRIVATE_KEY || '';
+// ⚠️ 使用 minter 私钥 (Base58 格式)
+const WALLET_PRIVATE_KEY = process.env.SOLANA_MINTER_PRIVATE_KEY || process.env.SOLANA_PRIVATE_KEY || '';
 
 async function createCollection() {
   if (!WALLET_PRIVATE_KEY) {
@@ -76,7 +76,7 @@ async function createCollection() {
     console.log('');
     console.log('Transaction:', bs58.encode(signature));
     console.log('');
-    console.log('查看: https://solscan.io/token/' + collectionMint.publicKey.toString());
+    console.log('查看: https://solscan.io/token/' + collectionMint.publicKey.toString() + '?cluster=devnet');
     console.log('');
     console.log('📝 请将以下内容添加到 .env 文件:');
     console.log(`SOLANA_COLLECTION_MINT=${collectionMint.publicKey.toString()}`);

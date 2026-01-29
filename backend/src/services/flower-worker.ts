@@ -5,6 +5,7 @@ import { mintNFT } from '../lib/solana.js';
 
 const POLL_INTERVAL = 5000; // 5秒轮询一次
 let isRunning = false;
+let isProcessing = false; // 防止并发处理
 
 export async function startWorker() {
   if (isRunning) return;
@@ -21,38 +22,64 @@ export async function startWorker() {
 }
 
 async function processNextTask() {
-  // 获取一个待处理的任务
-  const task = await prisma.flowerTask.findFirst({
-    where: {
-      status: 'pending',
-    },
-    include: {
-      flower: {
-        include: {
-          session: true,
-          user: true,
-        },
-      },
-    },
-    orderBy: { createdAt: 'asc' },
-  });
+  // 防止并发处理
+  if (isProcessing) {
+    console.log('[Worker] Already processing, skipping...');
+    return;
+  }
 
-  if (!task) return;
-
-  console.log(`Processing task ${task.id}`);
+  isProcessing = true;
 
   try {
-    await processTask(task);
-  } catch (error: any) {
-    await handleTaskError(task.id, error);
+    console.log('[Worker] Checking for pending tasks...');
+
+    // 使用事务：查找并立即锁定任务
+    const task = await prisma.$transaction(async (tx) => {
+      const pendingTask = await tx.flowerTask.findFirst({
+        where: { status: 'pending' },
+        include: {
+          flower: {
+            include: {
+              session: true,
+              user: true,
+            },
+          },
+        },
+        orderBy: { createdAt: 'asc' },
+      });
+
+      if (!pendingTask) return null;
+
+      // 立即更新状态，防止其他进程拾取
+      await tx.flowerTask.update({
+        where: { id: pendingTask.id },
+        data: { status: 'generating', startedAt: new Date() },
+      });
+
+      return pendingTask;
+    });
+
+    if (!task) {
+      console.log('[Worker] No pending tasks found');
+      return;
+    }
+
+    console.log(`Processing task ${task.id}`);
+
+    try {
+      await processTask(task);
+    } catch (error: any) {
+      await handleTaskError(task.id, error);
+    }
+  } finally {
+    isProcessing = false;
   }
 }
 
 async function processTask(task: any) {
   const { flower } = task;
 
-  // 步骤1: 生成图片
-  await updateTaskStatus(task.id, 'generating');
+  // 步骤1: 生成图片 (状态已在 processNextTask 中更新为 generating)
   const result = await generateFlower({
     reason: flower.session.reason,
     duration: flower.session.durationSeconds,
@@ -96,8 +123,12 @@ async function processTask(task: any) {
   let txHash: string | null = null;
   let tokenId: string | null = null;
 
+  console.log(`[Mint] User address: ${flower.user?.address || 'NOT FOUND'}`);
+  console.log(`[Mint] User data:`, JSON.stringify(flower.user, null, 2));
+
   if (flower.user?.address) {
     try {
+      console.log(`[Mint] Starting mint for ${flower.user.address}...`);
       const mintResult = await mintNFT(
         flower.user.address,
         metadataUrl,
@@ -111,7 +142,8 @@ async function processTask(task: any) {
         data: { txHash, tokenId, metadataUrl, minted: true },
       });
     } catch (error: any) {
-      console.error(`NFT mint failed for flower ${flower.id}:`, error.message);
+      console.error(`❌ NFT mint failed for flower ${flower.id}:`, error.message);
+      console.error(`   Full error:`, error);
       // 继续执行，图片已生成，只是 NFT 未 mint
       await prisma.flower.update({
         where: { id: flower.id },
