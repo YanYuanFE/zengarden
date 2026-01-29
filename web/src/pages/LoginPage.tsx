@@ -96,7 +96,7 @@ export function LoginPage() {
               Connect Wallet
             </Button>
             <p className="text-center text-sm text-stone">
-              Step 1: Connect your Solana wallet
+              Connect your Solana wallet
             </p>
           </div>
         ) : (
@@ -123,7 +123,7 @@ export function LoginPage() {
               {isSigning || isLoading ? 'Signing...' : 'Sign In'}
             </Button>
             <p className="text-center text-sm text-stone">
-              Step 2: Sign to verify identity
+              Sign to verify identity
             </p>
           </div>
         )}
