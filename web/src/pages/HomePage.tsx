@@ -8,7 +8,6 @@ import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 const DURATIONS = [
-  { value: 30, label: '30s' },
   { value: 60, label: '1m' },
   { value: 900, label: '15m' },
   { value: 1500, label: '25m' },
@@ -19,7 +18,7 @@ export function HomePage() {
   const navigate = useNavigate();
   const { user } = useUser();
   const [reason, setReason] = useState('');
-  const [duration, setDuration] = useState(30);
+  const [duration, setDuration] = useState(60);
   const [isStarting, setIsStarting] = useState(false);
 
   const handleStart = async () => {
