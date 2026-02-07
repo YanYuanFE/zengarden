@@ -1,20 +1,19 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAppKit, useAppKitAccount, useAppKitProvider, useDisconnect } from '@reown/appkit/react';
+import { useAppKit, useAppKitAccount, useDisconnect } from '@reown/appkit/react';
+import { useSignMessage } from 'wagmi';
 import { useUser } from '@/contexts/UserContext';
 import { authApi } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { formatAddress } from '@/lib/utils';
-import type { Provider } from '@reown/appkit-adapter-solana';
-import bs58 from 'bs58';
 
 function createSignMessage(address: string, nonce: string): string {
   const domain = 'zengarden.xyz';
   const now = new Date();
 
   return [
-    `${domain} wants you to sign in with your Solana account:`,
+    `${domain} wants you to sign in with your Ethereum account:`,
     address,
     '',
     'Welcome to ZenGarden! Please sign to verify your wallet ownership.',
@@ -29,7 +28,7 @@ export function LoginPage() {
   const { open } = useAppKit();
   const { address, isConnected } = useAppKitAccount();
   const { disconnect } = useDisconnect();
-  const { walletProvider } = useAppKitProvider<Provider>('solana');
+  const { signMessageAsync } = useSignMessage();
   const { user, login, isLoading, isInitialized } = useUser();
   const [isSigning, setIsSigning] = useState(false);
 
@@ -40,17 +39,15 @@ export function LoginPage() {
   }
 
   const handleSign = async () => {
-    if (!address || !walletProvider || isSigning) return;
+    if (!address || isSigning) return;
 
     setIsSigning(true);
     try {
       const { nonce } = await authApi.getNonce(address);
       const message = createSignMessage(address, nonce);
 
-      // Solana 签名
-      const encodedMessage = new TextEncoder().encode(message);
-      const signatureBytes = await walletProvider.signMessage(encodedMessage);
-      const signature = bs58.encode(signatureBytes);
+      // EVM 签名 (personal_sign)
+      const signature = await signMessageAsync({ message });
 
       const result = await authApi.verify({ address, message, signature });
       await login(result.token);
@@ -96,7 +93,7 @@ export function LoginPage() {
               Connect Wallet
             </Button>
             <p className="text-center text-sm text-stone">
-              Connect your Solana wallet
+              Connect your wallet
             </p>
           </div>
         ) : (

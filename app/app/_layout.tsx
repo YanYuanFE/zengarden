@@ -15,8 +15,10 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import 'react-native-reanimated';
 import * as Clipboard from 'expo-clipboard';
 
-import { AppKit, AppKitProvider, createAppKit, solana, solanaDevnet } from '@reown/appkit-react-native';
-import { SolanaAdapter } from '@reown/appkit-solana-react-native';
+import { AppKit, AppKitProvider, createAppKit } from '@reown/appkit-react-native';
+import { WagmiAdapter } from '@reown/appkit-wagmi-react-native';
+import { bsc } from '@reown/appkit/networks';
+import { WagmiProvider } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { useColorScheme } from '@/components/useColorScheme';
@@ -46,17 +48,20 @@ const metadata = {
   },
 };
 
-const networks = [solana, solanaDevnet];
-const solanaAdapter = new SolanaAdapter();
+const networks = [bsc];
+const wagmiAdapter = new WagmiAdapter({
+  projectId,
+  networks,
+});
 
 const appkit = createAppKit({
   projectId,
   networks,
-  adapters: [solanaAdapter],
+  adapters: [wagmiAdapter],
   metadata,
   clipboardClient,
   storage,
-  defaultNetwork: solana,
+  defaultNetwork: bsc,
   enableAnalytics: true,
 });
 
@@ -147,9 +152,10 @@ function RootLayoutNav() {
     <SafeAreaProvider>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} translucent />
-        <QueryClientProvider client={queryClient}>
-          <AppKitProvider instance={appkit}>
-            <UserProvider>
+        <WagmiProvider config={wagmiAdapter.wagmiConfig}>
+          <QueryClientProvider client={queryClient}>
+            <AppKitProvider instance={appkit}>
+              <UserProvider>
               <AuthGuard>
                 <Stack>
                   <Stack.Screen name="login" options={{ headerShown: false }} />
@@ -166,6 +172,7 @@ function RootLayoutNav() {
             </UserProvider>
           </AppKitProvider>
         </QueryClientProvider>
+      </WagmiProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   );

@@ -1,7 +1,7 @@
 import { prisma } from '../lib/prisma.js';
 import { generateFlower } from '../services/flower-generator.js';
 import { uploadImage, uploadJson } from '../lib/r2.js';
-import { mintNFT } from '../lib/solana.js';
+import { mintNFT } from '../lib/nft.js';
 
 const POLL_INTERVAL = 5000; // 5秒轮询一次
 const STUCK_TASK_TIMEOUT = 5 * 60 * 1000; // 5分钟超时
@@ -153,23 +153,21 @@ async function processTask(task: any) {
   const metadataFileName = `metadata/${flower.userId}/${Date.now()}.json`;
   const metadataUrl = await uploadJson(metadata, metadataFileName);
 
-  // 步骤4: Mint NFT (Solana)
+  // 步骤4: Mint NFT (EVM/BSC)
   let txHash: string | null = null;
   let tokenId: string | null = null;
 
   console.log(`[Mint] User address: ${flower.user?.address || 'NOT FOUND'}`);
-  console.log(`[Mint] User data:`, JSON.stringify(flower.user, null, 2));
 
   if (flower.user?.address) {
     try {
       console.log(`[Mint] Starting mint for ${flower.user.address}...`);
       const mintResult = await mintNFT(
-        flower.user.address,
+        flower.user.address as `0x${string}`,
         metadataUrl,
-        metadata.name
       );
-      txHash = mintResult.signature;
-      tokenId = mintResult.mint; // Solana 使用 mint address 作为 tokenId
+      txHash = mintResult.txHash;
+      tokenId = String(mintResult.tokenId);
 
       await prisma.flower.update({
         where: { id: flower.id },

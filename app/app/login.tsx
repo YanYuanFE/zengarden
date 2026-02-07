@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, View, Text, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useAppKit, useAccount, useProvider } from '@reown/appkit-react-native';
-import bs58 from 'bs58';
+import { useAppKit, useAccount } from '@reown/appkit-react-native';
+import { useSignMessage } from 'wagmi';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useUser } from '@/contexts/UserContext';
 import { authApi } from '@/services/api';
@@ -13,13 +13,13 @@ function formatAddress(address: string): string {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
 
-// Create sign message for Solana
+// Create sign message for EVM
 function createSignMessage(address: string, nonce: string): string {
   const domain = 'zengarden.xyz';
   const now = new Date();
 
   return [
-    `${domain} wants you to sign in with your Solana account:`,
+    `${domain} wants you to sign in with your Ethereum account:`,
     address,
     '',
     'Welcome to ZenGarden! Please sign to verify your wallet ownership.',
@@ -33,9 +33,9 @@ export default function LoginScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
   const router = useRouter();
-  const { open, disconnect, } = useAppKit();
-  const { address, isConnected, chainId } = useAccount();
-  const { provider } = useProvider();
+  const { open, disconnect } = useAppKit();
+  const { address, isConnected } = useAccount();
+  const { signMessageAsync } = useSignMessage();
   const { user, login, isLoading, isInitialized } = useUser();
   const [isSigning, setIsSigning] = useState(false);
 
@@ -48,7 +48,7 @@ export default function LoginScreen() {
 
   // Sign and Login
   const handleSign = async () => {
-    if (!address || !provider || !chainId || isSigning) return;
+    if (!address || isSigning) return;
 
     setIsSigning(true);
     try {
@@ -58,16 +58,8 @@ export default function LoginScreen() {
       // Create sign message
       const message = createSignMessage(address, nonce);
 
-      // Request user signature (Solana)
-      const encodedMessage = new TextEncoder().encode(message);
-      const params = {
-        message: bs58.encode(encodedMessage),
-        pubkey: address,
-      };
-      const { signature } = (await provider.request(
-        { method: 'solana_signMessage', params },
-        `solana:${chainId}`
-      )) as { signature: string };
+      // EVM 签名 (personal_sign)
+      const signature = await signMessageAsync({ message });
 
       // Verify with backend, get JWT token
       const result = await authApi.verify({
@@ -116,7 +108,7 @@ export default function LoginScreen() {
               <Text style={styles.connectButtonText}>Connect Wallet</Text>
             </Pressable>
             <Text style={[styles.hint, { color: colors.textSecondary }]}>
-              Connect your Solana wallet
+              Connect your wallet
             </Text>
           </>
         ) : (
@@ -225,7 +217,3 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-function useAppKitProvider<T>(arg0: string): { walletProvider: any; } {
-  throw new Error('Function not implemented.');
-}
-
