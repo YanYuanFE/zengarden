@@ -4,6 +4,7 @@ import { uploadImage, uploadJson } from '../lib/r2.js';
 import { mintNFT } from '../lib/solana.js';
 
 const POLL_INTERVAL = 5000; // 5秒轮询一次
+const STUCK_TASK_TIMEOUT = 5 * 60 * 1000; // 5分钟超时
 let isRunning = false;
 let isProcessing = false; // 防止并发处理
 
@@ -12,6 +13,9 @@ export async function startWorker() {
   isRunning = true;
   console.log('🌸 Flower worker started');
 
+  // 启动时恢复卡住的任务
+  await recoverStuckTasks();
+
   setInterval(async () => {
     try {
       await processNextTask();
@@ -19,6 +23,36 @@ export async function startWorker() {
       console.error('Worker error:', error);
     }
   }, POLL_INTERVAL);
+
+  // 每分钟检查一次卡住的任务
+  setInterval(async () => {
+    try {
+      await recoverStuckTasks();
+    } catch (error) {
+      console.error('Recovery error:', error);
+    }
+  }, 60000);
+}
+
+// 恢复卡住的任务
+async function recoverStuckTasks() {
+  const stuckTimeout = new Date(Date.now() - STUCK_TASK_TIMEOUT);
+
+  const stuckTasks = await prisma.flowerTask.updateMany({
+    where: {
+      status: { in: ['generating', 'uploading', 'minting'] },
+      startedAt: { lt: stuckTimeout },
+      retryCount: { lt: 3 },
+    },
+    data: {
+      status: 'pending',
+      error: 'Task timed out, retrying...',
+    },
+  });
+
+  if (stuckTasks.count > 0) {
+    console.log(`[Worker] Recovered ${stuckTasks.count} stuck tasks`);
+  }
 }
 
 async function processNextTask() {
