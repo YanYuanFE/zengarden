@@ -132,6 +132,10 @@ export const flowersApi = {
         id: string;
         imageUrl?: string;
         createdAt: string;
+        txHash?: string;
+        tokenId?: string;
+        metadataUrl?: string;
+        minted?: boolean;
         session: { reason: string; durationSeconds: number };
         task?: FlowerTask;
       }>;
@@ -159,6 +163,9 @@ export const flowersApi = {
     }>(`/api/flowers/task/${taskId}/retry`, {
       method: 'POST',
     }, true),
+
+  getMetadata: (flowerId: string) =>
+    request<{ metadata: Record<string, unknown> }>(`/api/community/flowers/${flowerId}/metadata`),
 };
 
 // Community API Types
@@ -176,6 +183,10 @@ export interface CommunityFlower {
   id: string;
   imageUrl?: string;
   createdAt: string;
+  txHash?: string;
+  tokenId?: string;
+  metadataUrl?: string;
+  minted?: boolean;
   user: CommunityUser;
   session: { reason: string; durationSeconds: number };
   _count: { likes: number };

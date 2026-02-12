@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { UserAvatar } from '@/components/UserAvatar';
 import { type CommunityFlower } from '@/services/api';
 import { useFeed, useLikeFlower } from '@/hooks/useCommunity';
 import { Button } from '@/components/ui/button';
+import { FlowerDetailModal } from '@/components/FlowerDetailModal';
 import { Heart } from 'lucide-react';
 
 function formatAddress(address: string) {
@@ -36,6 +38,7 @@ export function CommunityPage() {
   const { data, isLoading } = useFeed();
   const likeMutation = useLikeFlower();
   const flowers = data?.flowers ?? [];
+  const [selectedFlower, setSelectedFlower] = useState<CommunityFlower | null>(null);
 
   const handleLike = (flowerId: string) => {
     likeMutation.mutate(flowerId);
@@ -65,6 +68,7 @@ export function CommunityPage() {
               key={flower.id}
               flower={flower}
               onLike={() => handleLike(flower.id)}
+              onSelect={() => setSelectedFlower(flower)}
             />
           ))}
         </div>
@@ -75,6 +79,13 @@ export function CommunityPage() {
           </div>
         )}
       </div>
+
+      {selectedFlower && (
+        <FlowerDetailModal
+          flower={selectedFlower}
+          onClose={() => setSelectedFlower(null)}
+        />
+      )}
     </div>
   );
 }
@@ -82,9 +93,10 @@ export function CommunityPage() {
 interface FlowerCardProps {
   flower: CommunityFlower;
   onLike: () => void;
+  onSelect: () => void;
 }
 
-function FlowerCard({ flower, onLike }: FlowerCardProps) {
+function FlowerCard({ flower, onLike, onSelect }: FlowerCardProps) {
   return (
     <div className="bg-white rounded-2xl p-4 shadow-sm">
       <div className="flex items-center gap-3 mb-3">
@@ -109,7 +121,8 @@ function FlowerCard({ flower, onLike }: FlowerCardProps) {
         <img
           src={flower.imageUrl}
           alt="Flower"
-          className="w-full aspect-square rounded-xl object-cover mb-3"
+          className="w-full aspect-square rounded-xl object-cover mb-3 cursor-pointer active:scale-[0.99] transition-transform"
+          onClick={onSelect}
         />
       )}
 

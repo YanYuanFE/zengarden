@@ -1,50 +1,22 @@
+import { useState } from 'react';
 import { type Flower } from '@/services/api';
 import { useFlowers, useRetryTask } from '@/hooks/useFlowers';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { FlowerDetailModal } from '@/components/FlowerDetailModal';
 import { RefreshCw, AlertCircle, Loader2 } from 'lucide-react';
 
-function EmptyState() {
-  return (
-    <Card className="text-center py-12">
-      <span className="text-4xl mb-4 block">🌱</span>
-      <p className="text-stone">No flowers yet</p>
-      <p className="text-sm text-stone mt-1">Complete a focus session to generate your first flower</p>
-    </Card>
-  );
-}
-
-function FlowerGrid({ flowers, onRetry, retryingTaskId }: { flowers: Flower[]; onRetry: (taskId: string) => void; retryingTaskId: string | null }) {
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
-      {flowers.map((flower, i) => (
-        <FlowerCard
-          key={flower.id}
-          flower={flower}
-          index={i}
-          onRetry={onRetry}
-          isRetrying={retryingTaskId === flower.task?.id}
-        />
-      ))}
-    </div>
-  );
-}
+// ─── Utilities ───────────────────────────────────────────
 
 function formatDuration(seconds: number): string {
-  if (seconds < 60) {
-    return `${seconds}s`;
-  }
+  if (seconds < 60) return `${seconds}s`;
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = seconds % 60;
-  if (remainingSeconds === 0) {
-    return `${minutes}m`;
-  }
-  return `${minutes}m ${remainingSeconds}s`;
+  return remainingSeconds === 0 ? `${minutes}m` : `${minutes}m ${remainingSeconds}s`;
 }
 
 function getTaskStatusDisplay(task?: Flower['task']) {
   if (!task) return null;
-
   switch (task.status) {
     case 'pending':
       return { label: 'Waiting...', color: 'text-amber-600', icon: 'waiting' };
@@ -63,19 +35,35 @@ function getTaskStatusDisplay(task?: Flower['task']) {
   }
 }
 
-function FlowerCard({ flower, index, onRetry, isRetrying }: { flower: Flower; index: number; onRetry: (taskId: string) => void; isRetrying: boolean }) {
+// ─── Flower Card ─────────────────────────────────────────
+
+function FlowerCard({
+  flower,
+  index,
+  onRetry,
+  isRetrying,
+  onSelect,
+}: {
+  flower: Flower;
+  index: number;
+  onRetry: (taskId: string) => void;
+  isRetrying: boolean;
+  onSelect: (flower: Flower) => void;
+}) {
   const statusDisplay = getTaskStatusDisplay(flower.task);
   const hasImage = !!flower.imageUrl;
 
-  const handleRetry = () => {
+  const handleRetry = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (!flower.task?.id || isRetrying) return;
     onRetry(flower.task.id);
   };
 
   return (
     <Card
-      className="p-0 overflow-hidden animate-fade-in"
+      className={`p-0 overflow-hidden animate-fade-in ${hasImage ? 'cursor-pointer active:scale-[0.98] transition-transform' : ''}`}
       style={{ animationDelay: `${index * 0.1}s` }}
+      onClick={() => hasImage && onSelect(flower)}
     >
       {hasImage ? (
         <img
@@ -124,15 +112,23 @@ function FlowerCard({ flower, index, onRetry, isRetrying }: { flower: Flower; in
       )}
       <div className="p-3">
         <p className="text-sm text-charcoal truncate">{flower.session.reason}</p>
-        <p className="text-xs text-stone">{formatDuration(flower.session.durationSeconds)}</p>
+        <div className="flex items-center justify-between mt-0.5">
+          <p className="text-xs text-stone">{formatDuration(flower.session.durationSeconds)}</p>
+          {flower.minted && (
+            <span className="text-[10px] font-medium text-sage bg-sage/10 px-1.5 py-0.5 rounded-full">NFT</span>
+          )}
+        </div>
       </div>
     </Card>
   );
 }
 
+// ─── Page ────────────────────────────────────────────────
+
 export function GardenPage() {
   const { data: flowers = [], isLoading } = useFlowers();
   const retryMutation = useRetryTask();
+  const [selectedFlower, setSelectedFlower] = useState<Flower | null>(null);
 
   const handleRetry = (taskId: string) => {
     retryMutation.mutate(taskId);
@@ -154,12 +150,30 @@ export function GardenPage() {
       </h1>
 
       {flowers.length === 0 ? (
-        <EmptyState />
+        <Card className="text-center py-12">
+          <span className="text-4xl mb-4 block">🌱</span>
+          <p className="text-stone">No flowers yet</p>
+          <p className="text-sm text-stone mt-1">Complete a focus session to generate your first flower</p>
+        </Card>
       ) : (
-        <FlowerGrid
-          flowers={flowers}
-          onRetry={handleRetry}
-          retryingTaskId={retryMutation.isPending ? retryMutation.variables ?? null : null}
+        <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
+          {flowers.map((flower, i) => (
+            <FlowerCard
+              key={flower.id}
+              flower={flower}
+              index={i}
+              onRetry={handleRetry}
+              isRetrying={retryMutation.isPending && retryMutation.variables === flower.task?.id}
+              onSelect={setSelectedFlower}
+            />
+          ))}
+        </div>
+      )}
+
+      {selectedFlower && (
+        <FlowerDetailModal
+          flower={selectedFlower}
+          onClose={() => setSelectedFlower(null)}
         />
       )}
     </div>

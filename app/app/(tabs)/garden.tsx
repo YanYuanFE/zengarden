@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { StyleSheet, View, Text, FlatList, Image, ActivityIndicator, RefreshControl, useWindowDimensions, Pressable } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useColorScheme } from '@/components/useColorScheme';
+import { FlowerDetailModal } from '@/components/FlowerDetailModal';
 import { useUser } from '@/contexts/UserContext';
 import { flowersApi } from '@/services/api';
 import Colors from '@/constants/Colors';
@@ -17,6 +18,10 @@ interface Flower {
   id: string;
   imageUrl?: string;
   createdAt: string;
+  txHash?: string;
+  tokenId?: string;
+  metadataUrl?: string;
+  minted?: boolean;
   session: { reason: string; durationSeconds: number };
   task?: FlowerTask;
 }
@@ -60,6 +65,7 @@ export default function GardenScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [retryingTaskId, setRetryingTaskId] = useState<string | null>(null);
+  const [selectedFlower, setSelectedFlower] = useState<Flower | null>(null);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const fetchFlowers = useCallback(async () => {
@@ -147,7 +153,11 @@ export default function GardenScreen() {
     const isRetrying = retryingTaskId === item.task?.id;
 
     return (
-      <View style={[styles.card, { backgroundColor: colors.card, width: cardWidth }]}>
+      <Pressable
+        style={[styles.card, { backgroundColor: colors.card, width: cardWidth }]}
+        onPress={() => hasImage && setSelectedFlower(item)}
+        disabled={!hasImage}
+      >
         {hasImage ? (
           <Image source={{ uri: item.imageUrl }} style={styles.image} />
         ) : (
@@ -193,7 +203,12 @@ export default function GardenScreen() {
         <Text style={[styles.duration, { color: colors.textSecondary }]}>
           {Math.floor(item.session.durationSeconds / 60)} mins
         </Text>
-      </View>
+        {item.minted && (
+          <View style={[styles.nftBadge, { backgroundColor: colors.primary + '15' }]}>
+            <Text style={[styles.nftBadgeText, { color: colors.primary }]}>NFT</Text>
+          </View>
+        )}
+      </Pressable>
     );
   };
 
@@ -222,6 +237,12 @@ export default function GardenScreen() {
           </View>
         }
         renderItem={renderFlowerCard}
+      />
+
+      <FlowerDetailModal
+        flower={selectedFlower}
+        visible={!!selectedFlower}
+        onClose={() => setSelectedFlower(null)}
       />
     </View>
   );
@@ -310,5 +331,17 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
+  },
+  nftBadge: {
+    position: 'absolute',
+    bottom: 12,
+    right: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+  },
+  nftBadgeText: {
+    fontSize: 10,
+    fontWeight: '600',
   },
 });

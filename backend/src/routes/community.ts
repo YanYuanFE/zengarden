@@ -194,4 +194,34 @@ community.get('/leaderboard', async (c) => {
   }
 });
 
+// GET /api/community/flowers/:id/metadata - 公开获取花朵 metadata JSON
+community.get('/flowers/:id/metadata', async (c) => {
+  try {
+    const flowerId = c.req.param('id');
+
+    const flower = await prisma.flower.findUnique({
+      where: { id: flowerId },
+    });
+
+    if (!flower) {
+      return c.json({ error: 'Flower not found' }, 404);
+    }
+
+    if (!flower.metadataUrl) {
+      return c.json({ error: 'No metadata available' }, 404);
+    }
+
+    const response = await fetch(flower.metadataUrl);
+    if (!response.ok) {
+      return c.json({ error: 'Failed to fetch metadata' }, 502);
+    }
+
+    const metadata = await response.json();
+    return c.json({ metadata });
+  } catch (error: any) {
+    console.error('Get metadata error:', error);
+    return c.json({ error: error.message }, 500);
+  }
+});
+
 export { community };

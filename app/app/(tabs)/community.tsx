@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import { Feather } from '@expo/vector-icons';
 import { type CommunityFlower } from '@/services/api';
 import { useFeed, useLikeFlower } from '@/hooks/useCommunity';
 import { Avatar } from '@/components/Avatar';
+import { FlowerDetailModal } from '@/components/FlowerDetailModal';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 
@@ -48,6 +49,7 @@ export default function CommunityScreen() {
   const { data, isLoading, refetch, isRefetching } = useFeed();
   const likeMutation = useLikeFlower();
   const flowers = data?.flowers ?? [];
+  const [selectedFlower, setSelectedFlower] = useState<CommunityFlower | null>(null);
 
   const handleLike = (flowerId: string) => {
     likeMutation.mutate(flowerId);
@@ -83,7 +85,9 @@ export default function CommunityScreen() {
         </Text>
 
         {item.imageUrl && (
-          <Image source={{ uri: item.imageUrl }} style={styles.image} />
+          <TouchableOpacity activeOpacity={0.9} onPress={() => setSelectedFlower(item)}>
+            <Image source={{ uri: item.imageUrl }} style={styles.image} />
+          </TouchableOpacity>
         )}
 
         <TouchableOpacity
@@ -130,6 +134,12 @@ export default function CommunityScreen() {
             <Text style={{ color: colors.textSecondary }}>No activity yet</Text>
           </View>
         }
+      />
+
+      <FlowerDetailModal
+        flower={selectedFlower}
+        visible={!!selectedFlower}
+        onClose={() => setSelectedFlower(null)}
       />
     </View>
   );
