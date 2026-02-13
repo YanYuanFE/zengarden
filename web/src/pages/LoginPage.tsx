@@ -9,7 +9,7 @@ import { Card } from '@/components/ui/card';
 import { formatAddress } from '@/lib/utils';
 
 function createSignMessage(address: string, nonce: string): string {
-  const domain = 'zengarden.xyz';
+  const domain = 'zengarden.pixstudio.art';
   const now = new Date();
 
   return [
@@ -70,9 +70,7 @@ export function LoginPage() {
       <div className="flex-1 flex flex-col items-center justify-center px-6 relative z-10">
         {/* Logo */}
         <div className="animate-float mb-8">
-          <div className="w-24 h-24 bg-sage rounded-3xl flex items-center justify-center shadow-lg">
-            <span className="text-5xl">🌸</span>
-          </div>
+          <img src="/logo.png" alt="ZenGarden" className="w-24 h-24 rounded-3xl shadow-lg" />
         </div>
 
         {/* Title */}

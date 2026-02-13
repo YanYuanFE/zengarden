@@ -12,8 +12,8 @@ const projectId = 'b1daffdd6f590ce1fe948af2022b4ec1'
 const metadata = {
   name: 'ZenGarden',
   description: 'Zen Garden - Focus to earn flower NFTs',
-  url: 'https://zengarden.xyz',
-  icons: ['https://zengarden.xyz/icon.png'],
+  url: 'https://zengarden.pixstudio.art',
+  icons: ['https://zengarden.pixstudio.art/logo.png'],
 }
 
 const networks: [AppKitNetwork, ...AppKitNetwork[]] = [bsc]

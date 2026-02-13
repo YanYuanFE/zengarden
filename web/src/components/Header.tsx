@@ -11,7 +11,7 @@ export function Header({ className }: { className?: string }) {
     <header className={cn("fixed top-0 left-0 right-0 z-50 bg-cream/80 backdrop-blur-sm border-b", className)}>
       <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <span className="text-2xl">🌸</span>
+          <img src="/logo.png" alt="ZenGarden" className="w-8 h-8 rounded-lg" />
           <span className="font-display text-xl font-semibold text-charcoal">
             ZenGarden
           </span>

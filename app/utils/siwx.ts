@@ -14,8 +14,8 @@ export const siwxConfig: SIWXConfig = {
 
     const data = {
       ...input,
-      domain: 'zengarden.xyz',
-      uri: 'https://zengarden.xyz',
+      domain: 'zengarden.pixstudio.art',
+      uri: 'https://zengarden.pixstudio.art',
       version: '1',
       nonce,
       statement: 'Welcome to ZenGarden! Please sign to verify your wallet ownership.',

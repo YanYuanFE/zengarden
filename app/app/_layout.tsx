@@ -41,8 +41,8 @@ const projectId = Config.EXPO_PUBLIC_REOWN_PROJECT_ID;
 const metadata = {
   name: 'ZenGarden',
   description: 'Zen Garden - Focus to harvest Flower NFTs',
-  url: 'https://zengarden.xyz',
-  icons: ['https://zengarden.xyz/icon.png'],
+  url: 'https://zengarden.pixstudio.art',
+  icons: ['https://zengarden.pixstudio.art/icon.png'],
   redirect: {
     native: 'zengarden://',
   },
